@@ -2,8 +2,8 @@ name: Deploy to production
 on:
   push:
     branches:
-    - [Your branch here]
-    
+    - master
+
 jobs:
   backend:
     name: Upload backend to Amazon ElasticBeanStack (EBS)
@@ -11,7 +11,7 @@ jobs:
     defaults:
       run:
         working-directory: backend
-    steps:  
+    steps:
     - name: Checkout source code
       uses: actions/checkout@v2
     - name: Dependencies installation
@@ -19,17 +19,17 @@ jobs:
     - name: Generate build
       run: npm run build
     - name: Generate deployment package
-      run: zip -r ../deploy.zip . -x '*.git*'  
+      run: zip -r ../deploy.zip . -x '*.git*'
     - name: Deploy to ElasticBeanStack
-      uses: einaregilsson/beanstalk-deploy@v13  
+      uses: einaregilsson/beanstalk-deploy@v13
       env:
-        VERSION_LABEL: yourEbsName-source-${{ github.run_id }}
+        VERSION_LABEL: ebsName-source-${{ github.run_id }}
         ENV: PROD
       with:
         aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        application_name: yourEbsName
-        environment_name: yourEbsName-env
+        application_name: ebsName
+        environment_name: ebsName-env
         version_label: ${{ env.VERSION_LABEL }}
         region: us-east-2
         deployment_package: deploy.zip
@@ -54,6 +54,6 @@ jobs:
     - name: Build static files
       run: npm run build
     - name: Clean S3 bucket from previous files with the AWS CLI
-      run: aws s3 rm s3://yourBucketName --recursive
+      run: aws s3 rm s3://bucketName --recursive
     - name: Copy files to the bucket with the AWS CLI
-      run: aws s3 sync build/ s3://yourBucketName
+      run: aws s3 sync build/ s3://bucketName
